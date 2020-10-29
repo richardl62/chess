@@ -1,26 +1,26 @@
 import React from 'react';
+import layouts from './starting_layouts';
+
+const layoutNames = Object.keys(layouts);
 
 function GameControl({gameOptions}) {
 
     const currentLayout = gameOptions.boardLayout();
 
+    const makeGameTypeItem = name => (
+        <label>
+            <input type="radio" name="game-type"
+                onChange={() => gameOptions.boardLayout(name)}
+                checked={currentLayout === name}
+            />
+            {layouts[name].displayName}
+        </label>
+    );
+
     return (
         <div className="game-control" >
             <div className="game-type">
-                <label>
-                    <input type="radio" name="game-type"
-                        onChange={()=>gameOptions.boardLayout('standard')} 
-                        checked={currentLayout === 'standard'}
-                    />
-                    Standard
-                </label>
-                <label>
-                    <input type="radio" name="game-type"
-                        onChange={()=>gameOptions.boardLayout('fiveASide')}
-                        checked={currentLayout === 'fiveASide'}  
-                    />
-                    5-a-side
-                </label>
+                {layoutNames.map(makeGameTypeItem)}
             </div>
 
             <div className='buttons'>

@@ -5,11 +5,6 @@ import { itemTypes } from './constants';
 
 import SVGPiece from 'react-chess-pieces';
 
-const blackPieceNames = ['p', 'n',  'b',  'r',  'q',  'k'];
-const whitePieceNames = ['P', 'N',  'B',  'R',  'Q',  'K' ];
-
-
-const pieceNames = blackPieceNames.concat(whitePieceNames);
 
 class CorePiece {
   constructor(name, id) {
@@ -17,7 +12,7 @@ class CorePiece {
     this.name = name;
     Object.freeze(this);
   }
-};
+}
 
 class CorePieceFactory {
 
@@ -34,10 +29,6 @@ class CorePieceFactory {
 
     if(input instanceof CorePiece) {
       return this.make(input.name);
-    }
-
-    if (!pieceNames.includes(input)) {
-      throw new Error(`CorePieceFactor.make() given unrecognised input: ${input}`)
     }
 
     ++this._lastUsedId;
@@ -75,4 +66,4 @@ function Piece({ corePiece, gameOptions }) {
   }
 }
 
-export { Piece, CorePieceFactory, blackPieceNames, whitePieceNames }
+export { Piece, CorePieceFactory } 

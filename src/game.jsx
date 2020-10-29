@@ -7,41 +7,15 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { BoardLayout } from './board_layout';
 import { Board } from './board';
 import { SimpleSquare } from './square'
-import { blackPieceNames, whitePieceNames, Piece } from './pieces';
+import {  CorePieceFactory, Piece } from './pieces';
 import  GameControl from './game_control';
+import  startingLayouts from './starting_layouts';
+import  {defaultLayoutName} from './starting_layouts';
 
 
-import { CorePieceFactory } from "./pieces";
-
-const layouts = {
-    standard: [
-        ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
-        ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
-        ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'],
-    ],
-
-    fiveASide: [
-        ['r', 'n', 'b', 'q', 'k'],
-        ['p', 'p', 'p', 'p', 'p'],
-        [null, null, null, null, null],
-        [null, null, null, null, null],
-        ['P', 'P', 'P', 'P', 'P'],
-        ['R', 'N', 'B', 'Q', 'K'],
-    ]
-}
-
-const defaultLayoutName = 'standard';
-const defaultTopLeftBlack = false;
-
-
-function PermanentPieces({ corePieces, gameOptions }) {
+function RowOfPieces({ corePieces, gameOptions }) {
     return (
-        <div className='permanent-pieces'>
+        <div className='row-of-pieces'>
             {corePieces.map(
                 (cp, index) => (
                     <SimpleSquare key={index}>
@@ -53,18 +27,22 @@ function PermanentPieces({ corePieces, gameOptions }) {
     ); 
 }
 
-function makeBoardState(layoutName, cpf) {
-    const layout = layouts[layoutName];
+function makeBoardState(name, cpf) {
+
+    const makeCorePiece = name => cpf.make(name);
+
+    const layout = startingLayouts[name];
     if(!layout) {
-        throw new Error(`Unrecognised board layout name: ${layoutName}`);
+        throw new Error(`Unrecognised layout name: ${name}`)
     }
-    const pieces = layout.map(row => row.map(
-        name => cpf.make(name)
-    ));
+    
+    const pieces = layout.board.map(row => row.map(makeCorePiece));
 
     return {
-        layoutName: layoutName,
-        boardLayout: new BoardLayout(pieces, defaultTopLeftBlack),
+        copyablePiecesTop: layout.copyableTop.map(makeCorePiece),
+        boardLayout: new BoardLayout(pieces, layout.topLeftBlack),
+        copyablePiecesBottom: layout.copyableBottom.map(makeCorePiece),
+        layoutName: name,
     };
 }
 
@@ -77,11 +55,6 @@ class Game extends React.Component {
         this._corePieceFactory = cpf;
 
         this.state = makeBoardState(defaultLayoutName, cpf);
-
-        this.state.OffBoardCorePieces = {
-            black: blackPieceNames.map(name => cpf.make(name)),
-            white: whitePieceNames.map(name => cpf.make(name)),
-        };
     }
 
     boardLayout(layoutName) {
@@ -101,15 +74,13 @@ class Game extends React.Component {
     flip() {
         this.setState({
             boardLayout: this.state.boardLayout.copy().reserveRows(),
-            OffBoardCorePieces: {
-                black: this.state.OffBoardCorePieces.white,
-                white: this.state.OffBoardCorePieces.black,
-            }
+            copyablePiecesTop: this.state.copyablePiecesBottom,
+            copyablePiecesBottom: this.state.copyablePiecesTop,
         });
     }
 
     restart() {
-       this.boardLayout(this.state.layoutName);
+        this.setState(makeBoardState(this.state.layoutName, this._corePieceFactory));
     }
 
     movePiece(pieceId, row, col)  {
@@ -168,8 +139,8 @@ class Game extends React.Component {
             <DndProvider backend={HTML5Backend}>
                 <div className="game">
 
-                    <PermanentPieces
-                        corePieces={this.state.OffBoardCorePieces.black}
+                    <RowOfPieces
+                        corePieces={this.state.copyablePiecesTop}
                         gameOptions={this}
                     />
 
@@ -178,8 +149,8 @@ class Game extends React.Component {
                         gameOptions={this}
                     />
 
-                    <PermanentPieces
-                        corePieces={this.state.OffBoardCorePieces.white}
+                    <RowOfPieces
+                        corePieces={this.state.copyablePiecesBottom}
                         gameOptions={this}
                     />
                 </div>
