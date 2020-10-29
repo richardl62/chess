@@ -1,6 +1,6 @@
 {
-  "name": "draggable-tutorial",
-  "homepage": "http://richardl62.github.io/react-draggable",
+  "name": "chess",
+  "homepage": "http://richardl62.github.io/chess",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
