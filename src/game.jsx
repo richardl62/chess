@@ -58,6 +58,10 @@ class Game extends React.Component {
         this.state.numberRowsFromTop = false;
     }
 
+    componentDidMount() {
+        document.title = 'Chess'
+    }
+
     get numberRowsFromTop() {
         return this.state.numberRowsFromTop;
     }

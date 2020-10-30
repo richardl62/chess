@@ -3,18 +3,23 @@ import layouts from './starting_layouts';
 
 const layoutNames = Object.keys(layouts);
 
+function displayName(layoutName) {
+    // replace '-' with non-breaking space
+    return layouts[layoutName].displayName.replace("o", "&#8209;");
+}
+
 function GameControl({gameOptions}) {
 
     const currentLayout = gameOptions.boardLayout();
 
     const makeGameTypeItem = name => (
-        <label key={name}>
-            <input type="radio" name="game-type"
+        <div key={name}>
+            <input type="radio" name="game-type" id={name}
                 onChange={() => gameOptions.boardLayout(name)}
                 checked={currentLayout === name}
             />
-            {layouts[name].displayName}
-        </label>
+            <label htmlFor={name} name="game-type">{displayName(name)}</label>
+        </div>
     );
 
     return (

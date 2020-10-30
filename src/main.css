@@ -20,20 +20,21 @@
     margin-left: 8px;
 }
 
-.game-type {
-    display: flex;
-    justify-content: space-between;
 
+.game-type > div {
+    display: inline;
+    white-space: nowrap;
     font-size: 20px;
+ 
 }
 
-.game-type input {
-   margin-right: 2px;
+.game-type label {
+    margin-left: .3em;
+    margin-right: 0.8em;
 }
 
 .buttons {
     margin-top: 6px;
-
 }
 
 .game-control button {
@@ -114,7 +115,7 @@
 }
 
 .board .square:hover:active  {
-    border: 4px solid --var(active-square-highlight);
+    border: 4px solid var(--active-square-highlight, purple);
     background-color: none;
 }
 
