@@ -8,7 +8,7 @@ function GameControl({gameOptions}) {
     const currentLayout = gameOptions.boardLayout();
 
     const makeGameTypeItem = name => (
-        <label>
+        <label key={name}>
             <input type="radio" name="game-type"
                 onChange={() => gameOptions.boardLayout(name)}
                 checked={currentLayout === name}

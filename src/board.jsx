@@ -20,46 +20,40 @@ function addHeader(nCols, elems, rowName) {
 
 function addRow(layout, row, gameOptions, elems) {
 
-    const key = elemName =>  'r' + row + '-' + elemName;
+    let key = name =>  'r' + row + '-' + name;
 
-    elems.push(
+    let makeBoarderElem = name => (
         <div
-            key={key('start')}
+            key={key(name)}
             className='board-boarder board-boarder-number'
         >
-            {row+1}
+            {gameOptions.numberRowsFromTop ? row + 1 : layout.nRows - row}
         </div>
     );
 
+    let makeSquare = col => (
+        <BoardSquare
+            index={col}
+            key={key(col)}
+
+            corePiece={layout.corePiece(row, col)}
+            gameOptions={gameOptions}
+
+            // This is the 'conceptual' color which must be black or white.
+            color={layout.isBlack(row, col) ? 'black' : 'white'}
+
+            row={row}
+            col={col}
+        />
+    )
+
+    elems.push(makeBoarderElem('start'));
 
     for (let col = 0; col < layout.nCols; ++col) {
-        // Get the 'conceptual' color which must be black or white.
-        const color = layout.isBlack(row, col) ? 'black' : 'white';
-
-        elems.push(
-            <BoardSquare
-                index={col}
-                key={key(col)}
-
-                corePiece={layout.corePiece(row, col)}
-                gameOptions={gameOptions}
-
-                color={color}
-
-                row={row}
-                col={col}
-            />
-        );
+        elems.push(makeSquare(col));
     }
 
-    elems.push(
-        <div
-            key={key('end')}
-            className='board-boarder board-boarder-number'
-        >
-            {row+1}
-        </div>
-    );
+    elems.push(makeBoarderElem('end'));
 }
 
 function Board({layout, gameOptions}) {

@@ -55,8 +55,12 @@ class Game extends React.Component {
         this._corePieceFactory = cpf;
 
         this.state = makeBoardState(defaultLayoutName, cpf);
+        this.state.numberRowsFromTop = false;
     }
 
+    get numberRowsFromTop() {
+        return this.state.numberRowsFromTop;
+    }
     boardLayout(layoutName) {
 
         if(layoutName !== undefined) {
@@ -76,11 +80,22 @@ class Game extends React.Component {
             boardLayout: this.state.boardLayout.copy().reserveRows(),
             copyablePiecesTop: this.state.copyablePiecesBottom,
             copyablePiecesBottom: this.state.copyablePiecesTop,
+            
+            numberRowsFromTop: !this.state.numberRowsFromTop,
         });
     }
 
     restart() {
         this.setState(makeBoardState(this.state.layoutName, this._corePieceFactory));
+    }
+
+    _findOffBoardPiece(pieceId) {
+        let piece = this.state.copyablePiecesTop.find(p => p.id === pieceId);
+        if(!piece) {
+            piece = this.state.copyablePiecesBottom.find(p => p.id === pieceId);
+        }
+
+        return piece;
     }
 
     movePiece(pieceId, row, col)  {
@@ -93,15 +108,13 @@ class Game extends React.Component {
                 newBoardLayout.corePiece(bp.row, bp.col, null);
             }
         } else {
-            let nbp = this.state.OffBoardCorePieces.white.find(p => p.id === pieceId);
-            if(!nbp)
-                nbp = this.state.OffBoardCorePieces.black.find(p => p.id === pieceId);
+            let obp = this._findOffBoardPiece(pieceId);
 
-            if (!nbp) {
+            if (!obp) {
                 throw new Error(`Piece with id ${pieceId} not found`);
             }
 
-            const copiedPiece = this._corePieceFactory.make(nbp); 
+            const copiedPiece = this._corePieceFactory.make(obp); 
             newBoardLayout.corePiece(row,col, copiedPiece)
         }
 

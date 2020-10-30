@@ -34,7 +34,7 @@ const layouts = {
 
         copyableBottom: ['P', 'N',  'B',  'R',  'Q',  'K' ],
 
-        displayName: '5-a-size',
+        displayName: '5-a-side',
     },
 };
 
