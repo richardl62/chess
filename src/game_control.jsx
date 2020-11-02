@@ -33,6 +33,20 @@ function GameControl({gameOptions}) {
                 <button type='button' onClick={()=>gameOptions.clear()}> Clear</button>
                 <button type='button' onClick={()=>gameOptions.flip()}>Flip</button>
             </div>
+
+            <div className='buttons'>
+                <button type='undo'
+                    disabled={!gameOptions.canUndo}
+                    onClick={() => gameOptions.undo()}>
+                    Undo
+                </button>
+
+                <button type='redo'
+                    disabled={!gameOptions.canRedo}
+                    onClick={() => gameOptions.redo()}>
+                    Redo
+                </button>
+            </div>
         </div>
     );
 }

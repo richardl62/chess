@@ -11,7 +11,7 @@ import {  CorePieceFactory, Piece } from './pieces';
 import  GameControl from './game_control';
 import  startingLayouts from './starting_layouts';
 import  {defaultLayoutName} from './starting_layouts';
-
+import  StateManager from './state_manager';
 
 function RowOfPieces({ corePieces, gameOptions }) {
     return (
@@ -56,7 +56,21 @@ class Game extends React.Component {
 
         this.state = makeBoardState(defaultLayoutName, cpf);
         this.state.numberRowsFromTop = false;
+
+        this.stateManager = new StateManager({
+            getState: () => this.state, 
+            setState: state => this.setState(state) ,
+        });
     }
+
+    doSetState(newState) {
+        this.stateManager.setState(newState);
+    }
+    
+    undo() { return this.stateManager.undo();}
+    redo() { return this.stateManager.redo();}
+    get canUndo() { return this.stateManager.canUndo;}
+    get canRedo() { return this.stateManager.canRedo;}
 
     componentDidMount() {
         document.title = 'Chess'
@@ -68,19 +82,19 @@ class Game extends React.Component {
     boardLayout(layoutName) {
 
         if(layoutName !== undefined) {
-            this.setState(makeBoardState(layoutName, this._corePieceFactory));
+            this.doSetState(makeBoardState(layoutName, this._corePieceFactory));
         }
         return this.state.layoutName;
     }
 
     clear() {
-        this.setState({
+        this.doSetState({
             boardLayout: this.state.boardLayout.copy().clearSquares()
         });
     }
 
     flip() {
-        this.setState({
+        this.doSetState({
             boardLayout: this.state.boardLayout.copy().reserveRows(),
             copyablePiecesTop: this.state.copyablePiecesBottom,
             copyablePiecesBottom: this.state.copyablePiecesTop,
@@ -90,7 +104,7 @@ class Game extends React.Component {
     }
 
     restart() {
-        this.setState(makeBoardState(this.state.layoutName, this._corePieceFactory));
+        this.doSetState(makeBoardState(this.state.layoutName, this._corePieceFactory));
     }
 
     _findOffBoardPiece(pieceId) {
@@ -122,7 +136,7 @@ class Game extends React.Component {
             newBoardLayout.corePiece(row,col, copiedPiece)
         }
 
-        this.setState({
+        this.doSetState({
             boardLayout: newBoardLayout,
         })
     }
@@ -135,7 +149,7 @@ class Game extends React.Component {
                 let newBoardLayout = this.state.boardLayout.copy();
                 newBoardLayout.corePiece(bp.row, bp.col, null);
                 
-                this.setState({
+                this.doSetState({
                     boardLayout: newBoardLayout,
                 })
             }
