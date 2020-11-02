@@ -73,7 +73,7 @@ class Game extends React.Component {
     get canRedo() { return this.stateManager.canRedo;}
 
     componentDidMount() {
-        document.title = 'Chess'
+        document.title = 'Chess';
     }
 
     get numberRowsFromTop() {
