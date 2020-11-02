@@ -12,7 +12,7 @@ const layouts = {
             ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
             ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'],
         ],
-        topLeftBlack: true,
+        topLeftBlack: false,
 
         copyableBottom: ['P', 'N',  'B',  'R',  'Q',  'K' ],
 
@@ -30,7 +30,7 @@ const layouts = {
             ['P', 'P', 'P', 'P', 'P'],
             ['R', 'N', 'B', 'Q', 'K'],
         ],
-        topLeftBlack: true,
+        topLeftBlack: false,
 
         copyableBottom: ['P', 'N',  'B',  'R',  'Q',  'K' ],
 
