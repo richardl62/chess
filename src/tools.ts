@@ -1,4 +1,6 @@
-export function compatibleSubState(sub, full) {
+interface stringIndex {[index: string]:object};
+
+function compatibleSubState(sub: stringIndex, full: stringIndex) {
     const keys =  Object.keys( sub );
     for(const key in keys) {
         if(sub[key] !== full[key]) {
@@ -9,7 +11,7 @@ export function compatibleSubState(sub, full) {
     return true;
 }
 
-export function equivalentState(state1, state2) {
+function equivalentState(state1:  {[index: string]:object}, state2:  {[index: string]:object}) {
     if(Object.keys(state1).length !== Object.keys(state2).length) {
         console.log("States have different keys", Object.keys(state1), Object.keys(state2));
         return false;
@@ -17,3 +19,5 @@ export function equivalentState(state1, state2) {
 
     return compatibleSubState(state1, state2);
 }
+
+export {equivalentState};
