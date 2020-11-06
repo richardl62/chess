@@ -1,8 +1,20 @@
 import { equivalentState } from './tools';
 
+type StateValue =  object;
+
+
+interface ClientFunctions {
+    getState: () => StateValue,
+    setState: (s: StateValue) => void,
+};
+
 class StateManager {
+    private _states: Array<StateValue>;
+    private _stateIndex: number;
+    private _clientFunctions: ClientFunctions;
+
     // clientSetState is NOT called the initialState.
-    constructor(clientFunctions) {
+    constructor(clientFunctions: ClientFunctions) {
         if (typeof clientFunctions.getState !== "function"
             || typeof clientFunctions.getState !== "function") {
             throw new Error("StateManager requires getState and setState functions");
@@ -14,23 +26,23 @@ class StateManager {
         this._clientFunctions = clientFunctions;
     }
 
-    get canUndo() {return this._stateIndex > 0;}
-    get canRedo() {return this._stateIndex + 1 < this._states.length;}
-    get state() {return this._states[this._stateIndex];}
+    get canUndo() : boolean {return this._stateIndex > 0;}
+    get canRedo() : boolean {return this._stateIndex + 1 < this._states.length;}
+    get state() :StateValue {return this._states[this._stateIndex];}
 
-    _sanityCheck() {
+    _sanityCheck() : void {
         if(!equivalentState(this.state, this._clientFunctions.getState())) {
             throw new Error("StateManage out of sync with client");
         }
     }
 
-    _setClientState() {
+    _setClientState() : void {
         this._clientFunctions.setState(this.state); 
 
         this._sanityCheck();
     }
 
-    undo() {
+    undo() : boolean {
         this._sanityCheck();
 
         //console.log("before undo: stateIndex=", this._stateIndex);
@@ -42,7 +54,7 @@ class StateManager {
         return ok;
     }
 
-    redo() {
+    redo() : boolean {
         this._sanityCheck();
 
         //console.log("before redo: stateIndex=", this._stateIndex);
@@ -54,7 +66,7 @@ class StateManager {
         return ok;
     }
 
-    setState(stateChange) {
+    setState(stateChange: StateValue) : void {
         this._sanityCheck();
 
         //Merge the stateChange into the currents tate;

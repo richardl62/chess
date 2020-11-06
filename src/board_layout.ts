@@ -1,12 +1,17 @@
+type corePiece = any; // TEMPORARY KLUDGE
+type corePieceArray = [corePiece][];
+
 class BoardLayout {
 
+    private _corePieces : corePieceArray;
+    private _topLeftBlack : boolean;
     // Input is of form show below.  Each element is CorePiece or null.
     // [
     //     [r0c0, r0c1. ...],
     //     [r1c0, r1c1. ...], 
     //     ...
     // ]
-    constructor(corePieces, topLeftBlack) {
+    constructor(corePieces: corePieceArray, topLeftBlack: boolean) {
         if(!(corePieces instanceof Array && typeof topLeftBlack === "boolean")) {
             throw new Error("Bad input to BoardLayout");
         }
@@ -26,7 +31,7 @@ class BoardLayout {
     get nCols() {return this._corePieces[0].length;}
 
     // Get or set the core piece at the specified square. Null represents an emoty square.
-    corePiece(row, col, newPiece) {
+    corePiece(row :number, col: number, newPiece: corePiece) {
         if(this._corePieces[row][col] === undefined) {
             throw new Error(`Invalid row or column number: ${row} ${col}`)
         }
@@ -38,12 +43,12 @@ class BoardLayout {
         return this._corePieces[row][col];
     }
 
-    isBlack(row, col) {
+    isBlack(row: number, col: number) {
         const asTopLeft = (row + col) % 2 === 0;
         return asTopLeft ? this._topLeftBlack : !this._topLeftBlack;
     }
 
-   findCorePiecebyId(id) {
+   findCorePiecebyId(id: number) {
         for(let row = 0; row < this.nRows; ++row) {
             for(let col = 0; col < this.nCols; ++col) {
                 const cp = this._corePieces[row][col];
