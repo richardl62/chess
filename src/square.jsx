@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDrop } from 'react-dnd';
 import { itemTypes } from './constants';
-import { Piece } from './pieces';
+import { Piece } from './piece';
 
 class SimpleSquare extends React.PureComponent {
     render() {

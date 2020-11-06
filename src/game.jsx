@@ -8,7 +8,7 @@ import { BoardLayout } from './board_layout';
 import { Board } from './board';
 import { SimpleSquare } from './square'
 import { CorePieceFactory } from './core-piece';
-import { Piece } from './pieces';
+import { Piece } from './piece';
 import  GameControl from './game_control';
 import  startingLayouts from './starting_layouts';
 import  {defaultLayoutName} from './starting_layouts';
