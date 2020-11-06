@@ -15,10 +15,6 @@ class StateManager {
 
     // clientSetState is NOT called the initialState.
     constructor(clientFunctions: ClientFunctions) {
-        if (typeof clientFunctions.getState !== "function"
-            || typeof clientFunctions.getState !== "function") {
-            throw new Error("StateManager requires getState and setState functions");
-        }
 
         this._states = [clientFunctions.getState()];
         this._stateIndex = 0;
@@ -30,20 +26,24 @@ class StateManager {
     get canRedo() : boolean {return this._stateIndex + 1 < this._states.length;}
     get state() :StateValue {return this._states[this._stateIndex];}
 
-    _sanityCheck() : void {
-        if(!equivalentState(this.state, this._clientFunctions.getState())) {
-            throw new Error("StateManage out of sync with client");
+    sanityCheck() : void {
+        // WARNING: Can give a false positive if the value passed to
+        // _clientFunctions.setState() is not (fully) available using 
+        // _clientFunctions.getState();
+
+        const clientState = this._clientFunctions.getState();
+        if(!equivalentState(this.state, clientState)) {
+            console.log("this.state", this.state, "clientState", clientState);
+            throw new Error("StateManager out of sync with client");
         }
     }
 
-    _setClientState() : void {
+    private _setClientState() : void {
         this._clientFunctions.setState(this.state); 
-
-        this._sanityCheck();
     }
 
     undo() : boolean {
-        this._sanityCheck();
+        this.sanityCheck();
 
         //console.log("before undo: stateIndex=", this._stateIndex);
         const ok = this.canUndo;
@@ -55,7 +55,7 @@ class StateManager {
     }
 
     redo() : boolean {
-        this._sanityCheck();
+        this.sanityCheck();
 
         //console.log("before redo: stateIndex=", this._stateIndex);
         const ok = this.canRedo;
@@ -66,8 +66,17 @@ class StateManager {
         return ok;
     }
 
+    restart() : void {
+        this.sanityCheck();
+
+        if(this._stateIndex !== 0) {
+            this._stateIndex = 0;
+            this._setClientState();
+        }
+    }
+
     setState(stateChange: StateValue) : void {
-        this._sanityCheck();
+        this.sanityCheck();
 
         //Merge the stateChange into the currents tate;
         const newState = {...this.state, ...stateChange};

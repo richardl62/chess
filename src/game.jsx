@@ -70,6 +70,8 @@ class Game extends React.Component {
     
     undo() { return this.stateManager.undo();}
     redo() { return this.stateManager.redo();}
+    restart() { this.stateManager.restart();}
+
     get canUndo() { return this.stateManager.canUndo;}
     get canRedo() { return this.stateManager.canRedo;}
 
@@ -104,9 +106,6 @@ class Game extends React.Component {
         });
     }
 
-    restart() {
-        this.doSetState(makeBoardState(this.state.layoutName, this._corePieceFactory));
-    }
 
     _findOffBoardPiece(pieceId) {
         let piece = this.state.copyablePiecesTop.find(p => p.id === pieceId);
@@ -120,11 +119,15 @@ class Game extends React.Component {
     movePiece(pieceId, row, col)  {
 
         let newBoardLayout = this.state.boardLayout.copy();
+        let doSetState = () => this.doSetState({boardLayout: newBoardLayout,});
+
+
         const bp = newBoardLayout.findCorePiecebyId(pieceId);
         if ( bp ) {
             if (row !== bp.row || col !== bp.col) {
                 newBoardLayout.corePiece(row, col, bp.piece);
                 newBoardLayout.corePiece(bp.row, bp.col, null);
+                doSetState();
             }
         } else {
             let obp = this._findOffBoardPiece(pieceId);
@@ -134,12 +137,9 @@ class Game extends React.Component {
             }
 
             const copiedPiece = this._corePieceFactory.copy(obp); 
-            newBoardLayout.corePiece(row,col, copiedPiece)
+            newBoardLayout.corePiece(row,col, copiedPiece);
+            doSetState();
         }
-
-        this.doSetState({
-            boardLayout: newBoardLayout,
-        })
     }
 
     dragEnd(pieceId, dropped) {

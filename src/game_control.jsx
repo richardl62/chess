@@ -29,7 +29,6 @@ function GameControl({gameOptions}) {
             </div>
 
             <div className='buttons'>
-                <button type='button' onClick={()=>gameOptions.restart()}>Restart</button>
                 <button type='button' onClick={()=>gameOptions.clear()}> Clear</button>
                 <button type='button' onClick={()=>gameOptions.flip()}>Flip</button>
             </div>
@@ -46,6 +45,8 @@ function GameControl({gameOptions}) {
                     onClick={() => gameOptions.redo()}>
                     Redo
                 </button>
+
+                <button type='button' onClick={()=>gameOptions.restart()}>Restart</button>
             </div>
         </div>
     );
