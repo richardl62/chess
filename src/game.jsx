@@ -133,7 +133,7 @@ class Game extends React.Component {
                 throw new Error(`Piece with id ${pieceId} not found`);
             }
 
-            const copiedPiece = this._corePieceFactory.make(obp); 
+            const copiedPiece = this._corePieceFactory.copy(obp); 
             newBoardLayout.corePiece(row,col, copiedPiece)
         }
 
