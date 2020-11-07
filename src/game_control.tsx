@@ -12,8 +12,25 @@ function displayName(layoutName: string) {
     return layouts[layoutName].displayName.replace("o", "&#8209;");
 }
 
-function GameControl({gameOptions} : {gameOptions: KLUDGE}) {
+interface GameOptions {
+    undo: () => void;
+    redo: () => void;
 
+    canUndo: () => boolean;
+    canRedo: () => boolean;
+
+    clear: () => void;
+    flip: () => void;
+    restart: () => void;
+    
+    boardLayout: KLUDGE;
+}
+
+interface GameControlProps {
+    gameOptions: GameOptions,
+};
+
+const GameControl : React.FC<GameControlProps>  = ({gameOptions}) => {
     const currentLayout = gameOptions.boardLayout();
 
     const makeGameTypeItem = (name: string) => (
@@ -23,8 +40,7 @@ function GameControl({gameOptions} : {gameOptions: KLUDGE}) {
                 checked={currentLayout === name}
             />
 
-            {/* @ts-ignore - temporary KLUDGE to help with transition to Typescript.*/}
-            <label htmlFor={name} name="game-type">{displayName(name)}</label>
+            <label htmlFor={name}>{displayName(name)}</label>
         </div>
     );
 

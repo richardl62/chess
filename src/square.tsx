@@ -3,10 +3,16 @@ import { useDrop } from 'react-dnd';
 import { itemTypes } from './constants';
 import { Piece } from './piece';
 
-class SimpleSquare extends React.PureComponent {
+type KLUDGE = any;
+
+interface Props {
+    color?: 'black' | 'white';
+}
+
+class SimpleSquare extends React.PureComponent<Props> {
     render() {
-                // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
-        const { color, children } = this.props;
+        const color = this.props.color;
+        const children = this.props.children;
 
         let className = 'square';
         if (color) {
@@ -29,12 +35,20 @@ class SimpleSquare extends React.PureComponent {
     }
 }
 
-// @ts-ignore - temporary KLUDGE to help with transition to Typescript.
-function DroppableSquare({ corePiece, gameOptions, color, row, col}) {
+function DroppableSquare(options:
+    {
+        corePiece: KLUDGE,
+        gameOptions: KLUDGE,
+        color: 'black' | 'white',
+        row: number,
+        col: number,
+    }) {
+
+    const { corePiece, gameOptions, color, row, col} = options;
+
     const [, drop] = useDrop({
         accept: itemTypes.PIECE,
-        // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
-        drop: item => gameOptions.movePiece(item.id, row, col),
+        drop: (item: KLUDGE) => gameOptions.movePiece(item.id, row, col),
         collect: monitor => ({
             isOver: !!monitor.isOver(),
         }),
@@ -47,7 +61,6 @@ function DroppableSquare({ corePiece, gameOptions, color, row, col}) {
                 height: '100%',
             }}
         >
-            {/* @ts-ignore - temporary KLUDGE to help with transition to Typescript.*/}
             <SimpleSquare color={color}>
                 {corePiece ? <Piece corePiece={corePiece} gameOptions={gameOptions} /> : null}
             </SimpleSquare>

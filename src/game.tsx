@@ -7,7 +7,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { BoardLayout } from './board_layout';
 import { Board } from './board';
 import { SimpleSquare } from './square'
-import { CorePieceFactory } from './core-piece';
+import { CorePiece, CorePieceFactory } from './core-piece';
 import { Piece } from './piece';
 import GameControl from './game_control';
 import startingLayouts from './starting_layouts';
@@ -16,7 +16,7 @@ import StateManager from './state_manager';
 
 type KLUDGE = any;
 function RowOfPieces({ corePieces, gameOptions }: {
-    corePieces: KLUDGE,
+    corePieces: Array<CorePiece>,
     gameOptions: KLUDGE,
 }) {
     return (
@@ -36,7 +36,7 @@ function makeBoardState(name: string, cpf: KLUDGE) {
 
     const makeCorePiece = (name: string) => cpf.make(name);
 
-    // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
+    /* @ts-ignore - temporary KLUDGE to help with transition to Typescript. */
     const layout = startingLayouts[name];
     if (!layout) {
         throw new Error(`Unrecognised layout name: ${name}`)
@@ -52,19 +52,34 @@ function makeBoardState(name: string, cpf: KLUDGE) {
     };
 }
 
-class Game extends React.Component {
+
+interface GameProps {
+
+}
+
+interface GameState {
+    numberRowsFromTop: boolean;
+    layoutName: string;
+    boardLayout: KLUDGE;
+
+    copyablePiecesTop: Array<CorePiece>;
+    copyablePiecesBottom: Array<CorePiece>;
+}
+
+class Game extends React.Component<GameProps, GameState> {
     private _corePieceFactory: KLUDGE;
     private stateManager: KLUDGE;
 
-    constructor(props: KLUDGE) {
+    constructor(props: GameProps) {
         super(props);
 
         let cpf = new CorePieceFactory();
         this._corePieceFactory = cpf;
 
-        this.state = makeBoardState(defaultLayoutName, cpf);
-        // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
-        this.state.numberRowsFromTop = false;
+        this.state = {
+            ...makeBoardState(defaultLayoutName, cpf),
+            numberRowsFromTop: false,
+        };
 
         this.stateManager = new StateManager({
             getState: () => this.state,
@@ -88,7 +103,6 @@ class Game extends React.Component {
     }
 
     get numberRowsFromTop() {
-        // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
         return this.state.numberRowsFromTop;
     }
     boardLayout(layoutName: string) {
@@ -96,42 +110,29 @@ class Game extends React.Component {
         if (layoutName !== undefined) {
             this.doSetState(makeBoardState(layoutName, this._corePieceFactory));
         }
-        // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
+ 
         return this.state.layoutName;
     }
 
     clear() {
         this.doSetState({
-            // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
             boardLayout: this.state.boardLayout.copy().clearSquares()
         });
     }
 
     flip() {
         this.doSetState({
-            // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
-
             boardLayout: this.state.boardLayout.copy().reserveRows(),
-            // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
-
             copyablePiecesTop: this.state.copyablePiecesBottom,
-            // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
-
             copyablePiecesBottom: this.state.copyablePiecesTop,
-            // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
-
             numberRowsFromTop: !this.state.numberRowsFromTop,
         });
     }
 
 
     _findOffBoardPiece(pieceId: KLUDGE) {
-        // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
-
         let piece = this.state.copyablePiecesTop.find(p => p.id === pieceId);
         if (!piece) {
-            // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
-
             piece = this.state.copyablePiecesBottom.find(p => p.id === pieceId);
         }
 
@@ -139,7 +140,6 @@ class Game extends React.Component {
     }
 
     movePiece(pieceId: KLUDGE, row: number, col: number) {
-        // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
         let newBoardLayout = this.state.boardLayout.copy();
         let doSetState = () => this.doSetState({ boardLayout: newBoardLayout, });
 
@@ -167,10 +167,8 @@ class Game extends React.Component {
     dragEnd(pieceId: KLUDGE, dropped: boolean) {
         if (!dropped) {
             // The piece was dragged off the board. Now clear it.
-            // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
             const bp = this.state.boardLayout.findCorePiecebyId(pieceId);
             if (bp) {
-                // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
                 let newBoardLayout = this.state.boardLayout.copy();
                 newBoardLayout.corePiece(bp.row, bp.col, null);
 
@@ -182,7 +180,6 @@ class Game extends React.Component {
     }
 
     dragBehaviour(pieceId: KLUDGE) {
-        // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
         const onBoard = Boolean(this.state.boardLayout.findCorePiecebyId(pieceId));
 
         return {
@@ -197,19 +194,16 @@ class Game extends React.Component {
                 <div className="game">
 
                     <RowOfPieces
-                        // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
                         corePieces={this.state.copyablePiecesTop}
                         gameOptions={this}
                     />
 
                     <Board
-                        // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
                         layout={this.state.boardLayout}
                         gameOptions={this}
                     />
 
                     <RowOfPieces
-                        // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
                         corePieces={this.state.copyablePiecesBottom}
                         gameOptions={this}
                     />
