@@ -1,23 +1,29 @@
 import React from 'react';
 import layouts from './starting_layouts';
 
+type KLUDGE = any;
+
 const layoutNames = Object.keys(layouts);
 
-function displayName(layoutName) {
+function displayName(layoutName: string) {
     // replace '-' with non-breaking space
+    
+    // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
     return layouts[layoutName].displayName.replace("o", "&#8209;");
 }
 
-function GameControl({gameOptions}) {
+function GameControl({gameOptions} : {gameOptions: KLUDGE}) {
 
     const currentLayout = gameOptions.boardLayout();
 
-    const makeGameTypeItem = name => (
+    const makeGameTypeItem = (name: string) => (
         <div key={name}>
             <input type="radio" name="game-type" id={name}
                 onChange={() => gameOptions.boardLayout(name)}
                 checked={currentLayout === name}
             />
+
+            {/* @ts-ignore - temporary KLUDGE to help with transition to Typescript.*/}
             <label htmlFor={name} name="game-type">{displayName(name)}</label>
         </div>
     );
@@ -34,13 +40,13 @@ function GameControl({gameOptions}) {
             </div>
 
             <div className='buttons'>
-                <button type='undo'
+                <button type='button'
                     disabled={!gameOptions.canUndo}
                     onClick={() => gameOptions.undo()}>
                     Undo
                 </button>
 
-                <button type='redo'
+                <button type='button'
                     disabled={!gameOptions.canRedo}
                     onClick={() => gameOptions.redo()}>
                     Redo

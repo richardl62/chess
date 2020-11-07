@@ -1,9 +1,10 @@
 import React from 'react';
 import { DroppableSquare as BoardSquare } from './square';
 
+type KLUDGE = any;
 
-function addHeader(nCols, elems, rowName) {
-    const key = elemName => rowName + '-' + elemName;
+function addHeader(nCols: number, elems: KLUDGE, rowName: string) {
+    const key = (elemName: string | number) => rowName + '-' + elemName;
     elems.push(<div key={key('start')} />);
     for (let col = 0; col < nCols; ++col) {
         elems.push(
@@ -18,11 +19,11 @@ function addHeader(nCols, elems, rowName) {
     elems.push(<div key={key('end')} />);
 }
 
-function addRow(layout, row, gameOptions, elems) {
+function addRow(layout: KLUDGE, row: number, gameOptions: KLUDGE, elems: KLUDGE) {
 
-    let key = name =>  'r' + row + '-' + name;
+    let key = (name: string | number) =>  'r' + row + '-' + name;
 
-    let makeBoarderElem = name => (
+    let makeBoarderElem = (name: string) => (
         <div
             key={key(name)}
             className='board-boarder board-boarder-number'
@@ -31,8 +32,9 @@ function addRow(layout, row, gameOptions, elems) {
         </div>
     );
 
-    let makeSquare = col => (
+    let makeSquare = (col: number) => (
         <BoardSquare
+            // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
             index={col}
             key={key(col)}
 
@@ -56,11 +58,16 @@ function addRow(layout, row, gameOptions, elems) {
     elems.push(makeBoarderElem('end'));
 }
 
-function Board({layout, gameOptions}) {
+
+function Board({ layout, gameOptions }: {
+    layout: KLUDGE,
+    gameOptions: KLUDGE
+    })
+    {
     const nRows = layout.nRows;
     const nCols = layout.nCols;
 
-    let elems = [];
+    let elems: KLUDGE = [];
 
     addHeader(nCols, elems, 'top');
     for (let row = 0; row < nRows; ++row) {

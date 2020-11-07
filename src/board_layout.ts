@@ -1,4 +1,5 @@
-type corePiece = any; // TEMPORARY KLUDGE
+type KLUDGE = any;
+type corePiece = KLUDGE;
 type corePieceArray = [corePiece][];
 
 class BoardLayout {

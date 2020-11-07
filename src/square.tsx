@@ -5,6 +5,7 @@ import { Piece } from './piece';
 
 class SimpleSquare extends React.PureComponent {
     render() {
+                // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
         const { color, children } = this.props;
 
         let className = 'square';
@@ -28,9 +29,11 @@ class SimpleSquare extends React.PureComponent {
     }
 }
 
-function DroppableSquare({ corePiece, gameOptions, color, row, col }) {
+// @ts-ignore - temporary KLUDGE to help with transition to Typescript.
+function DroppableSquare({ corePiece, gameOptions, color, row, col}) {
     const [, drop] = useDrop({
         accept: itemTypes.PIECE,
+        // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
         drop: item => gameOptions.movePiece(item.id, row, col),
         collect: monitor => ({
             isOver: !!monitor.isOver(),
@@ -44,6 +47,7 @@ function DroppableSquare({ corePiece, gameOptions, color, row, col }) {
                 height: '100%',
             }}
         >
+            {/* @ts-ignore - temporary KLUDGE to help with transition to Typescript.*/}
             <SimpleSquare color={color}>
                 {corePiece ? <Piece corePiece={corePiece} gameOptions={gameOptions} /> : null}
             </SimpleSquare>
