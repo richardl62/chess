@@ -3,12 +3,12 @@ import layouts from './starting_layouts';
 
 type KLUDGE = any;
 
-const layoutNames = Object.keys(layouts);
+type LayoutKey = keyof typeof layouts;
+const layoutNames = Object.keys(layouts) as Array<LayoutKey>; // Kludge?
 
-function displayName(layoutName: string) {
+
+function displayName(layoutName: LayoutKey) {
     // replace '-' with non-breaking space
-    
-    // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
     return layouts[layoutName].displayName.replace("o", "&#8209;");
 }
 
@@ -33,7 +33,7 @@ interface GameControlProps {
 const GameControl : React.FC<GameControlProps>  = ({gameOptions}) => {
     const currentLayout = gameOptions.boardLayout();
 
-    const makeGameTypeItem = (name: string) => (
+    const makeGameTypeItem = (name: LayoutKey) => (
         <div key={name}>
             <input type="radio" name="game-type" id={name}
                 onChange={() => gameOptions.boardLayout(name)}

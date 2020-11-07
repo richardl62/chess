@@ -34,8 +34,6 @@ function addRow(layout: KLUDGE, row: number, gameOptions: KLUDGE, elems: KLUDGE)
 
     let makeSquare = (col: number) => (
         <BoardSquare
-            // @ts-ignore - temporary KLUDGE to help with transition to Typescript.
-            index={col}
             key={key(col)}
 
             corePiece={layout.corePiece(row, col)}

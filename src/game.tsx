@@ -15,6 +15,9 @@ import { defaultLayoutName } from './starting_layouts';
 import StateManager from './state_manager';
 
 type KLUDGE = any;
+
+type startingLayoutKey = keyof typeof startingLayouts;
+
 function RowOfPieces({ corePieces, gameOptions }: {
     corePieces: Array<CorePiece>,
     gameOptions: KLUDGE,
@@ -32,11 +35,10 @@ function RowOfPieces({ corePieces, gameOptions }: {
     );
 }
 
-function makeBoardState(name: string, cpf: KLUDGE) {
+function makeBoardState(name: startingLayoutKey, cpf: KLUDGE) {
 
     const makeCorePiece = (name: string) => cpf.make(name);
 
-    /* @ts-ignore - temporary KLUDGE to help with transition to Typescript. */
     const layout = startingLayouts[name];
     if (!layout) {
         throw new Error(`Unrecognised layout name: ${name}`)
@@ -105,7 +107,7 @@ class Game extends React.Component<GameProps, GameState> {
     get numberRowsFromTop() {
         return this.state.numberRowsFromTop;
     }
-    boardLayout(layoutName: string) {
+    boardLayout(layoutName: startingLayoutKey) {
 
         if (layoutName !== undefined) {
             this.doSetState(makeBoardState(layoutName, this._corePieceFactory));

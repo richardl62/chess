@@ -2,7 +2,7 @@ import React from 'react';
 import { useDrag } from 'react-dnd';
 import { itemTypes } from './constants';
 
-// @ts-ignore - temporary KLUDGE to help with transition to Typescript.
+
 import SVGPiece from 'react-chess-pieces';
 
 type KLUDGE = any;
