@@ -52,7 +52,11 @@ function GameControl({gameOptions} : {gameOptions: KLUDGE}) {
                     Redo
                 </button>
 
-                <button type='button' onClick={()=>gameOptions.restart()}>Restart</button>
+                <button type='button'
+                    disabled={!gameOptions.canUndo} //KLUDGE? 
+                    onClick={()=>gameOptions.restart()}>
+                    Restart
+                </button>
             </div>
         </div>
     );
