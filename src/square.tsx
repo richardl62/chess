@@ -2,8 +2,9 @@ import React from 'react';
 import { useDrop } from 'react-dnd';
 import { itemTypes } from './constants';
 import { Piece } from './piece';
+import { CorePiece } from './core-piece';
+import { Game } from './game';
 
-type KLUDGE = any;
 
 interface Props {
     color?: 'black' | 'white';
@@ -37,8 +38,8 @@ class SimpleSquare extends React.PureComponent<Props> {
 
 function DroppableSquare(options:
     {
-        corePiece: KLUDGE,
-        gameOptions: KLUDGE,
+        corePiece: CorePiece | null,
+        gameOptions: Game, 
         color: 'black' | 'white',
         row: number,
         col: number,
@@ -48,7 +49,8 @@ function DroppableSquare(options:
 
     const [, drop] = useDrop({
         accept: itemTypes.PIECE,
-        drop: (item: KLUDGE) => gameOptions.movePiece(item.id, row, col),
+        // @ts-expect-error: item should be a CorePiece, but I don't know hpw to tell Typescript this
+        drop: item => gameOptions.movePiece(item.id, row, col),
         collect: monitor => ({
             isOver: !!monitor.isOver(),
         }),

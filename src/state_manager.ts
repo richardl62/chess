@@ -1,5 +1,4 @@
 import { equivalentState } from './tools';
-
 type StateValue =  object;
 
 

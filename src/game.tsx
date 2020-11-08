@@ -7,27 +7,26 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { BoardLayout } from './board_layout';
 import { Board } from './board';
 import { SimpleSquare } from './square'
-import { CorePiece, CorePieceFactory } from './core-piece';
+import { CorePiece, CorePieceFactory, CorePieceId} from './core-piece';
 import { Piece } from './piece';
 import GameControl from './game_control';
 import startingLayouts from './starting_layouts';
 import { defaultLayoutName } from './starting_layouts';
 import StateManager from './state_manager';
 
-type KLUDGE = any;
-
-type startingLayoutKey = keyof typeof startingLayouts;
+type BoardLayoutName = keyof typeof startingLayouts;
 
 function RowOfPieces({ corePieces, gameOptions }: {
-    corePieces: Array<CorePiece>,
-    gameOptions: KLUDGE,
+    corePieces: Array<CorePiece|null>,
+    gameOptions: Game,
 }) {
     return (
         <div className='row-of-pieces'>
             {corePieces.map(
-                (cp: KLUDGE, index: number) => (
+                (cp, index) => (
                     <SimpleSquare key={index}>
-                        <Piece corePiece={cp} gameOptions={gameOptions} />
+                        {/* Kludge cp should never be null */}
+                        { cp ? <Piece corePiece={cp} gameOptions={gameOptions} /> : null }
                     </SimpleSquare>
                 )
             )}
@@ -35,16 +34,34 @@ function RowOfPieces({ corePieces, gameOptions }: {
     );
 }
 
-function makeBoardState(name: startingLayoutKey, cpf: KLUDGE) {
+interface PartialGameState {
+    numberRowsFromTop?: boolean;
+    layoutName?: BoardLayoutName;
+    boardLayout?: BoardLayout;
 
-    const makeCorePiece = (name: string) => cpf.make(name);
+    copyablePiecesTop?: Array<CorePiece|null>;
+    copyablePiecesBottom?: Array<CorePiece|null>;
+}
+
+interface GameState {
+    numberRowsFromTop: boolean;
+    layoutName: BoardLayoutName;
+    boardLayout: BoardLayout;
+
+    copyablePiecesTop: Array<CorePiece|null>;
+    copyablePiecesBottom: Array<CorePiece|null>;
+}
+
+function makeBoardState(name: BoardLayoutName, cpf: CorePieceFactory) {
+
+    const makeCorePiece = (name: string | null) => (name ? cpf.make(name) : null);
 
     const layout = startingLayouts[name];
     if (!layout) {
         throw new Error(`Unrecognised layout name: ${name}`)
     }
 
-    const pieces = layout.board.map((row: KLUDGE) => row.map(makeCorePiece));
+    const pieces = layout.board.map((row: Array<string|null>) => row.map(makeCorePiece));
 
     return {
         copyablePiecesTop: layout.copyableTop.map(makeCorePiece),
@@ -59,25 +76,16 @@ interface GameProps {
 
 }
 
-interface GameState {
-    numberRowsFromTop: boolean;
-    layoutName: string;
-    boardLayout: KLUDGE;
-
-    copyablePiecesTop: Array<CorePiece>;
-    copyablePiecesBottom: Array<CorePiece>;
-}
-
 class Game extends React.Component<GameProps, GameState> {
-    private _corePieceFactory: KLUDGE;
-    private stateManager: KLUDGE;
+    private _corePieceFactory: CorePieceFactory;
+    private stateManager: StateManager;
 
     constructor(props: GameProps) {
         super(props);
 
         let cpf = new CorePieceFactory();
         this._corePieceFactory = cpf;
-
+        
         this.state = {
             ...makeBoardState(defaultLayoutName, cpf),
             numberRowsFromTop: false,
@@ -89,7 +97,7 @@ class Game extends React.Component<GameProps, GameState> {
         });
     }
 
-    doSetState(newState: KLUDGE) {
+    private doSetState(newState: PartialGameState) {
         this.stateManager.setState(newState);
     }
 
@@ -107,12 +115,13 @@ class Game extends React.Component<GameProps, GameState> {
     get numberRowsFromTop() {
         return this.state.numberRowsFromTop;
     }
-    boardLayout(layoutName: startingLayoutKey) {
 
-        if (layoutName !== undefined) {
-            this.doSetState(makeBoardState(layoutName, this._corePieceFactory));
-        }
- 
+    setBoardLayout(layoutName: BoardLayoutName) {
+        this.doSetState(makeBoardState(layoutName, this._corePieceFactory));
+
+    }
+
+    boardLayoutName() {
         return this.state.layoutName;
     }
 
@@ -132,16 +141,17 @@ class Game extends React.Component<GameProps, GameState> {
     }
 
 
-    _findOffBoardPiece(pieceId: KLUDGE) {
-        let piece = this.state.copyablePiecesTop.find(p => p.id === pieceId);
+    _findOffBoardPiece(pieceId: CorePieceId) {
+        // Kludge: p should never be null
+        let piece = this.state.copyablePiecesTop.find(p => p && p.id === pieceId);
         if (!piece) {
-            piece = this.state.copyablePiecesBottom.find(p => p.id === pieceId);
+            piece = this.state.copyablePiecesBottom.find(p => p && p.id === pieceId);
         }
 
         return piece;
     }
 
-    movePiece(pieceId: KLUDGE, row: number, col: number) {
+    movePiece(pieceId: CorePieceId, row: number, col: number) {
         let newBoardLayout = this.state.boardLayout.copy();
         let doSetState = () => this.doSetState({ boardLayout: newBoardLayout, });
 
@@ -149,8 +159,8 @@ class Game extends React.Component<GameProps, GameState> {
         const bp = newBoardLayout.findCorePiecebyId(pieceId);
         if (bp) {
             if (row !== bp.row || col !== bp.col) {
-                newBoardLayout.corePiece(row, col, bp.piece);
-                newBoardLayout.corePiece(bp.row, bp.col, null);
+                newBoardLayout.setCorePiece(row, col, bp.piece);
+                newBoardLayout.setCorePiece(bp.row, bp.col, null);
                 doSetState();
             }
         } else {
@@ -161,18 +171,18 @@ class Game extends React.Component<GameProps, GameState> {
             }
 
             const copiedPiece = this._corePieceFactory.copy(obp);
-            newBoardLayout.corePiece(row, col, copiedPiece);
+            newBoardLayout.setCorePiece(row, col, copiedPiece);
             doSetState();
         }
     }
 
-    dragEnd(pieceId: KLUDGE, dropped: boolean) {
+    dragEnd(pieceId: CorePieceId, dropped: boolean) {
         if (!dropped) {
             // The piece was dragged off the board. Now clear it.
             const bp = this.state.boardLayout.findCorePiecebyId(pieceId);
             if (bp) {
                 let newBoardLayout = this.state.boardLayout.copy();
-                newBoardLayout.corePiece(bp.row, bp.col, null);
+                newBoardLayout.setCorePiece(bp.row, bp.col, null);
 
                 this.doSetState({
                     boardLayout: newBoardLayout,
@@ -181,7 +191,7 @@ class Game extends React.Component<GameProps, GameState> {
         }
     }
 
-    dragBehaviour(pieceId: KLUDGE) {
+    dragBehaviour(pieceId: CorePieceId) {
         const onBoard = Boolean(this.state.boardLayout.findCorePiecebyId(pieceId));
 
         return {

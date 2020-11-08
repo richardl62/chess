@@ -1,10 +1,9 @@
-type KLUDGE = any;
-type corePiece = KLUDGE;
-type corePieceArray = [corePiece][];
+import {CorePiece} from "./core-piece";
+type CorePieceArray = Array<Array<CorePiece|null>>;
 
 class BoardLayout {
 
-    private _corePieces : corePieceArray;
+    private _corePieces : CorePieceArray;
     private _topLeftBlack : boolean;
     // Input is of form show below.  Each element is CorePiece or null.
     // [
@@ -12,7 +11,7 @@ class BoardLayout {
     //     [r1c0, r1c1. ...], 
     //     ...
     // ]
-    constructor(corePieces: corePieceArray, topLeftBlack: boolean) {
+    constructor(corePieces: CorePieceArray, topLeftBlack: boolean) {
         if(!(corePieces instanceof Array && typeof topLeftBlack === "boolean")) {
             throw new Error("Bad input to BoardLayout");
         }
@@ -31,15 +30,21 @@ class BoardLayout {
     get nRows() {return this._corePieces.length;}
     get nCols() {return this._corePieces[0].length;}
 
-    // Get or set the core piece at the specified square. Null represents an emoty square.
-    corePiece(row :number, col: number, newPiece: corePiece) {
+    private sanityCheckRowCol(row :number, col: number) {
         if(this._corePieces[row][col] === undefined) {
             throw new Error(`Invalid row or column number: ${row} ${col}`)
         }
+    }
 
-        if(newPiece !== undefined) {
-            this._corePieces[row][col] = newPiece; 
-        }
+    // Null represents an emoty square.
+    setCorePiece(row :number, col: number, newPiece: CorePiece | null ) {
+        this.sanityCheckRowCol(row,col);
+
+        this._corePieces[row][col] = newPiece; 
+    }
+
+    corePiece(row: number, col: number) {
+        this.sanityCheckRowCol(row, col);
 
         return this._corePieces[row][col];
     }

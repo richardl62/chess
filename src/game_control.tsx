@@ -1,42 +1,26 @@
 import React from 'react';
 import layouts from './starting_layouts';
-
-type KLUDGE = any;
+import { Game } from './game'
 
 type LayoutKey = keyof typeof layouts;
 const layoutNames = Object.keys(layouts) as Array<LayoutKey>; // Kludge?
-
 
 function displayName(layoutName: LayoutKey) {
     // replace '-' with non-breaking space
     return layouts[layoutName].displayName.replace("o", "&#8209;");
 }
 
-interface GameOptions {
-    undo: () => void;
-    redo: () => void;
-
-    canUndo: () => boolean;
-    canRedo: () => boolean;
-
-    clear: () => void;
-    flip: () => void;
-    restart: () => void;
-    
-    boardLayout: KLUDGE;
-}
-
 interface GameControlProps {
-    gameOptions: GameOptions,
+    gameOptions: Game,
 };
 
 const GameControl : React.FC<GameControlProps>  = ({gameOptions}) => {
-    const currentLayout = gameOptions.boardLayout();
+    const currentLayout = gameOptions.boardLayoutName();
 
     const makeGameTypeItem = (name: LayoutKey) => (
         <div key={name}>
             <input type="radio" name="game-type" id={name}
-                onChange={() => gameOptions.boardLayout(name)}
+                onChange={() => gameOptions.setBoardLayout(name)}
                 checked={currentLayout === name}
             />
 
@@ -69,7 +53,7 @@ const GameControl : React.FC<GameControlProps>  = ({gameOptions}) => {
                 </button>
 
                 <button type='button'
-                    disabled={!gameOptions.canUndo} //KLUDGE? 
+                    disabled={!gameOptions.canUndo} //Kludge? 
                     onClick={()=>gameOptions.restart()}>
                     Restart
                 </button>
@@ -77,5 +61,6 @@ const GameControl : React.FC<GameControlProps>  = ({gameOptions}) => {
         </div>
     );
 }
+
 
 export default GameControl;

@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { DroppableSquare as BoardSquare } from './square';
+import { Game } from './game';
+import { BoardLayout } from './board_layout';
 
-type KLUDGE = any;
+type Elems = Array<ReactElement>;
 
-function addHeader(nCols: number, elems: KLUDGE, rowName: string) {
+function addHeader(nCols: number, elems: Elems, rowName: string) {
     const key = (elemName: string | number) => rowName + '-' + elemName;
     elems.push(<div key={key('start')} />);
     for (let col = 0; col < nCols; ++col) {
@@ -19,7 +21,7 @@ function addHeader(nCols: number, elems: KLUDGE, rowName: string) {
     elems.push(<div key={key('end')} />);
 }
 
-function addRow(layout: KLUDGE, row: number, gameOptions: KLUDGE, elems: KLUDGE) {
+function addRow(layout: BoardLayout, row: number, gameOptions: Game, elems: Elems) {
 
     let key = (name: string | number) =>  'r' + row + '-' + name;
 
@@ -58,14 +60,14 @@ function addRow(layout: KLUDGE, row: number, gameOptions: KLUDGE, elems: KLUDGE)
 
 
 function Board({ layout, gameOptions }: {
-    layout: KLUDGE,
-    gameOptions: KLUDGE
+    layout: BoardLayout,
+    gameOptions: Game
     })
     {
     const nRows = layout.nRows;
     const nCols = layout.nCols;
 
-    let elems: KLUDGE = [];
+    let elems: Elems = [];
 
     addHeader(nCols, elems, 'top');
     for (let row = 0; row < nRows; ++row) {

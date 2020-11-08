@@ -1,15 +1,17 @@
 import React from 'react';
 import { useDrag } from 'react-dnd';
 import { itemTypes } from './constants';
-
+import { Game } from './game';
+import { CorePiece } from './core-piece';
 
 import SVGPiece from 'react-chess-pieces';
 
-type KLUDGE = any;
+interface PieceProps {
+  gameOptions: Game;
+  corePiece: CorePiece;
+}
 
-function Piece({ corePiece, gameOptions } : {
-  corePiece: KLUDGE, gameOptions: KLUDGE, 
-  }) {
+const Piece : React.FC<PieceProps> = ({ corePiece, gameOptions }) => {
 
   const [{ isDragging }, drag ] = useDrag({
     item: {

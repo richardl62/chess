@@ -1,8 +1,11 @@
-class CorePiece {
-    name: string;
-    id: number;
+type CorePieceName = string; // Could do better
+type CorePieceId = number;
 
-    constructor(name: string, id: number) {
+class CorePiece {
+    name: CorePieceName;
+    id: CorePieceId;
+
+    constructor(name: CorePieceName, id: CorePieceId) {
       this.id = id;
       this.name = name;
       Object.freeze(this);
@@ -16,17 +19,10 @@ class CorePiece {
       this._lastUsedId = 0;
     }
   
-    make(x: null) : null;
-    make(name: string) : CorePiece;
 
-    make(input: any) : any {
-  
-      if (input === null) {
-        return null;
-      }
-
+    make(name: CorePieceName) {
       ++this._lastUsedId;
-      return new CorePiece(input, this._lastUsedId);
+      return new CorePiece(name, this._lastUsedId);
     }
 
     copy(corePiece: CorePiece) {
@@ -35,3 +31,4 @@ class CorePiece {
   }
 
   export { CorePiece, CorePieceFactory }
+  export type { CorePieceId, CorePieceName }
