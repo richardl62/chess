@@ -1,13 +1,14 @@
 import React from 'react';
 import { useDrag } from 'react-dnd';
 import { itemTypes } from './constants';
-import { Game } from './game';
 import { CorePiece } from './core-piece';
 
 import SVGPiece from 'react-chess-pieces';
 
+type GameOptions = any; /*KLUDGE*/
+
 interface PieceProps {
-  gameOptions: Game;
+  gameOptions: GameOptions;
   corePiece: CorePiece;
 }
 

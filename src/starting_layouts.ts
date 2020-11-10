@@ -36,6 +36,21 @@ const layouts = {
 
         displayName: '5-a-side',
     },
+
+    test: {
+        copyableTop: ['p'],
+
+        board: [
+            ['p'],
+            [null],
+            ['P'],
+        ],
+        topLeftBlack: false,
+
+        copyableBottom: ['P'],
+
+        displayName: 'test',
+    },
 };
 
 const defaultLayoutName = 'standard';

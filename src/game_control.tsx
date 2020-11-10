@@ -1,9 +1,10 @@
 import React from 'react';
 import layouts from './starting_layouts';
-import { Game } from './game'
 
 type LayoutKey = keyof typeof layouts;
 const layoutNames = Object.keys(layouts) as Array<LayoutKey>; // Kludge?
+
+type GameOptions = any; /*KLUDGE*/
 
 function displayName(layoutName: LayoutKey) {
     // replace '-' with non-breaking space
@@ -11,7 +12,7 @@ function displayName(layoutName: LayoutKey) {
 }
 
 interface GameControlProps {
-    gameOptions: Game,
+    gameOptions: GameOptions,
 };
 
 const GameControl : React.FC<GameControlProps>  = ({gameOptions}) => {

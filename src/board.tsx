@@ -1,9 +1,9 @@
 import React, { ReactElement } from 'react';
 import { DroppableSquare as BoardSquare } from './square';
-import { Game } from './game';
 import { BoardLayout } from './board_layout';
 
 type Elems = Array<ReactElement>;
+type GameOptions = any; /*KLUDGE*/
 
 function addHeader(nCols: number, elems: Elems, rowName: string) {
     const key = (elemName: string | number) => rowName + '-' + elemName;
@@ -21,7 +21,7 @@ function addHeader(nCols: number, elems: Elems, rowName: string) {
     elems.push(<div key={key('end')} />);
 }
 
-function addRow(layout: BoardLayout, row: number, gameOptions: Game, elems: Elems) {
+function addRow(layout: BoardLayout, row: number, gameOptions: GameOptions, elems: Elems) {
 
     let key = (name: string | number) =>  'r' + row + '-' + name;
 
@@ -61,7 +61,7 @@ function addRow(layout: BoardLayout, row: number, gameOptions: Game, elems: Elem
 
 function Board({ layout, gameOptions }: {
     layout: BoardLayout,
-    gameOptions: Game
+    gameOptions: GameOptions,
     })
     {
     const nRows = layout.nRows;

@@ -3,8 +3,8 @@ import { useDrop } from 'react-dnd';
 import { itemTypes } from './constants';
 import { Piece } from './piece';
 import { CorePiece } from './core-piece';
-import { Game } from './game';
 
+type GameOptions = any;
 
 interface Props {
     color?: 'black' | 'white';
@@ -39,7 +39,7 @@ class SimpleSquare extends React.PureComponent<Props> {
 function DroppableSquare(options:
     {
         corePiece: CorePiece | null,
-        gameOptions: Game, 
+        gameOptions: GameOptions, 
         color: 'black' | 'white',
         row: number,
         col: number,
@@ -49,8 +49,10 @@ function DroppableSquare(options:
 
     const [, drop] = useDrop({
         accept: itemTypes.PIECE,
-        // @ts-expect-error: item should be a CorePiece, but I don't know hpw to tell Typescript this
-        drop: item => gameOptions.movePiece(item.id, row, col),
+ 
+        // The use of 'any' below is a kludge.  I am not sure how to type if properly, or
+        // even if proper typing is possible.
+        drop: (corePiece: any) => gameOptions.movePiece(corePiece.id, row, col),
         collect: monitor => ({
             isOver: !!monitor.isOver(),
         }),
