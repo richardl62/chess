@@ -13,7 +13,7 @@ import GameControl from './game_control';
 import startingLayouts from './starting_layouts';
 import { defaultLayoutName } from './starting_layouts';
 import StateManager from './state_manager';
-import { equivalentState } from './tools'
+// import { equivalentState } from './tools'
 
 type BoardLayoutName = keyof typeof startingLayouts;
 
@@ -56,7 +56,7 @@ function makeBoardState(name: BoardLayoutName, cpf: CorePieceFactory) {
 }
 
 let corePieceFactory = new CorePieceFactory();
-let stateManager: StateManager;
+let untypedStateManager: any;  //KLUDGE
 
 const Game : React.FC = () => {
 
@@ -65,15 +65,16 @@ const Game : React.FC = () => {
         numberRowsFromTop: false,
     });
 
-    if(!stateManager) {
-        stateManager = new StateManager(state);
+    if(!untypedStateManager) {
+        untypedStateManager = new StateManager(state);
     }
+    let stateManager: StateManager<typeof state> = untypedStateManager;
 
     // componentDidMount() {
     //     document.title = 'Chess';
     // }
 
-    function findOffBoardPiece(pieceId: CorePieceId) {
+    const findOffBoardPiece = (pieceId: CorePieceId) => {
         // Kludge: p should never be null
         let piece = state.copyablePiecesTop.find(p => p && p.id === pieceId);
         if (!piece) {
@@ -83,7 +84,7 @@ const Game : React.FC = () => {
         return piece;
     }
 
-    function doSetState(newState: object) {
+    const doSetState = (newState: Object) => {
 
         // if(!equivalentState(state, stateManager.state)) {
         //     console.log("state", state, "tateManager.state", stateManager.state);
@@ -91,7 +92,7 @@ const Game : React.FC = () => {
         // }
     
         stateManager.setState(newState);
-        setReactState({...state, ...newState});
+        setReactState(stateManager.state);
     }
     
 
@@ -100,13 +101,8 @@ const Game : React.FC = () => {
         canUndo: stateManager.canUndo,
         canRedo: stateManager.canRedo,
 
-        // @ts-expect-error - KLUDGE
         undo: () => { setReactState(stateManager.undo());},
-        
-        // @ts-expect-error - KLUDGE
         redo: () => { setReactState(stateManager.redo());},
-
-        // @ts-expect-error - KLUDGE
         restart: () => { setReactState(stateManager.restart());},
 
         numberRowsFromTop: state.numberRowsFromTop,

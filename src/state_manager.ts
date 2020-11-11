@@ -1,11 +1,8 @@
-type StateValue =  object;
-
-class StateManager {
-    private _states: Array<StateValue>;
+class StateManager<State> {
+    private _states: Array<State>;
     private _stateIndex: number;
 
-    // clientSetState is NOT called the initialState.
-    constructor(initialState: object) {
+    constructor(initialState: State) {
         this._states = [initialState];
         this._stateIndex = 0;
     }
@@ -13,9 +10,9 @@ class StateManager {
     get canUndo() : boolean {return this._stateIndex > 0;}
     get canRedo() : boolean {return this._stateIndex + 1 < this._states.length;}
 
-    get state() :StateValue {return this._states[this._stateIndex];}
+    get state() :State {return this._states[this._stateIndex];}
 
-    undo(): StateValue {
+    undo(): State {
         if(!this.canUndo) {
             throw new Error("StateManager Cannot undo")
         }
@@ -23,7 +20,7 @@ class StateManager {
         return this.state;
     }
 
-    redo() : StateValue {
+    redo() : State {
         if(!this.canRedo) {
             throw new Error("StateManager Cannot redo")
         }
@@ -31,18 +28,17 @@ class StateManager {
         return this.state;
     }
 
-    restart() : StateValue {
+    restart() : State {
         this._stateIndex = 0;
         return this.state;
     }
 
-    setState(stateChange: StateValue) : void {
-        //Merge the stateChange into the currents tate;
-        const newState = {...this.state, ...stateChange};
-
+    setState(changeState: Partial<State>) : void {
         // Remove states afters the current state
         this._states = this._states.slice(0, this._stateIndex+1);
-        this._states.push(newState);
+
+        // Add a new complete state
+        this._states.push({...this.state, ...changeState});
         ++this._stateIndex;
     }
 }
