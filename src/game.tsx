@@ -1,6 +1,6 @@
 // Information about games that is indepantant of rendering */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
@@ -55,89 +55,79 @@ function makeBoardState(name: BoardLayoutName, cpf: CorePieceFactory) {
     };
 }
 
-let corePieceFactory = new CorePieceFactory();
-let untypedStateManager: any;  //KLUDGE
 
 const Game : React.FC = () => {
 
-    const [state, setReactState] = useState({
-        ...makeBoardState(defaultLayoutName, corePieceFactory),
-        numberRowsFromTop: false,
-    });
+    let corePieceFactory = useRef(new CorePieceFactory()).current;
 
-    if(!untypedStateManager) {
-        untypedStateManager = new StateManager(state);
-    }
-    let stateManager: StateManager<typeof state> = untypedStateManager;
+    useEffect(() => {document.title = 'Chess'}, []);
 
-    // componentDidMount() {
-    //     document.title = 'Chess';
-    // }
+    const [gameState, setGameState] = useState(makeBoardState(defaultLayoutName, corePieceFactory));
+        
+    const [reverseRowOrder, setReverseRowOrder] = useState(false);
+    
+
+    let gameStateManager = useRef(new StateManager(gameState)).current;
 
     const findOffBoardPiece = (pieceId: CorePieceId) => {
         // Kludge: p should never be null
-        let piece = state.copyablePiecesTop.find(p => p && p.id === pieceId);
+        let piece = gameState.copyablePiecesTop.find(p => p && p.id === pieceId);
         if (!piece) {
-            piece = state.copyablePiecesBottom.find(p => p && p.id === pieceId);
+            piece = gameState.copyablePiecesBottom.find(p => p && p.id === pieceId);
         }
 
         return piece;
     }
 
-    const doSetState = (newState: Object) => {
+    const doSetGameState = (newState: Object) => {
 
-        // if(!equivalentState(state, stateManager.state)) {
-        //     console.log("state", state, "tateManager.state", stateManager.state);
+        // if(!equivalentState(gameState, gameStateManager.gameState)) {
+        //     console.log("gameState", gameState, "tateManager.gameState", gameStateManager.gameState);
         //     throw new Error("StateManager out of sync with client");
         // }
     
-        stateManager.setState(newState);
-        setReactState(stateManager.state);
+        gameStateManager.setState(newState);
+        setGameState(gameStateManager.state);
     }
     
 
     const gameControl = {
 
-        canUndo: stateManager.canUndo,
-        canRedo: stateManager.canRedo,
+        canUndo: gameStateManager.canUndo,
+        canRedo: gameStateManager.canRedo,
 
-        undo: () => { setReactState(stateManager.undo());},
-        redo: () => { setReactState(stateManager.redo());},
-        restart: () => { setReactState(stateManager.restart());},
+        undo: () => { setGameState(gameStateManager.undo());},
+        redo: () => { setGameState(gameStateManager.redo());},
+        restart: () => { setGameState(gameStateManager.restart());},
 
-        numberRowsFromTop: state.numberRowsFromTop,
+        reverseRowOrder: reverseRowOrder,
 
         setBoardLayout: (layoutName: BoardLayoutName) => {
-            doSetState(makeBoardState(layoutName, corePieceFactory));
+            doSetGameState(makeBoardState(layoutName, corePieceFactory));
         },
 
-        boardLayoutName: () => state.layoutName,
+        boardLayoutName: () => gameState.layoutName,
 
 
         clear: () => {
-            doSetState({
-                boardLayout: state.boardLayout.copy().clearSquares()
+            doSetGameState({
+                boardLayout: gameState.boardLayout.copy().clearSquares()
             });
         },
 
         flip: () => {
-            doSetState({
-                boardLayout: state.boardLayout.copy().reserveRows(),
-                copyablePiecesTop: state.copyablePiecesBottom,
-                copyablePiecesBottom: state.copyablePiecesTop,
-                numberRowsFromTop: !state.numberRowsFromTop,
-            });
+            setReverseRowOrder(!reverseRowOrder);
         },
 
         movePiece: (pieceId: CorePieceId, row: number, col: number) => {
-            let newBoardLayout = state.boardLayout.copy();
+            let newBoardLayout = gameState.boardLayout.copy();
 
             const bp = newBoardLayout.findCorePiecebyId(pieceId);
             if (bp) {
                 if (row !== bp.row || col !== bp.col) {
                     newBoardLayout.setCorePiece(row, col, bp.piece);
                     newBoardLayout.setCorePiece(bp.row, bp.col, null);
-                    doSetState({ boardLayout: newBoardLayout, });
+                    doSetGameState({ boardLayout: newBoardLayout, });
                 }
             } else {
                 let obp = findOffBoardPiece(pieceId);
@@ -148,19 +138,19 @@ const Game : React.FC = () => {
 
                 const copiedPiece = corePieceFactory.copy(obp);
                 newBoardLayout.setCorePiece(row, col, copiedPiece);
-                doSetState({ boardLayout: newBoardLayout, });
+                doSetGameState({ boardLayout: newBoardLayout, });
             }
         },
 
         dragEnd: (pieceId: CorePieceId, dropped: boolean) => {
             if (!dropped) {
                 // The piece was dragged off the board. Now clear it.
-                const bp = state.boardLayout.findCorePiecebyId(pieceId);
+                const bp = gameState.boardLayout.findCorePiecebyId(pieceId);
                 if (bp) {
-                    let newBoardLayout = state.boardLayout.copy();
+                    let newBoardLayout = gameState.boardLayout.copy();
                     newBoardLayout.setCorePiece(bp.row, bp.col, null);
 
-                    doSetState({
+                    doSetGameState({
                         boardLayout: newBoardLayout,
                     })
                 }
@@ -168,7 +158,7 @@ const Game : React.FC = () => {
         },
 
         dragBehaviour: (pieceId: CorePieceId) => {
-            const onBoard = Boolean(state.boardLayout.findCorePiecebyId(pieceId));
+            const onBoard = Boolean(gameState.boardLayout.findCorePiecebyId(pieceId));
 
             return {
                 move: onBoard,
@@ -177,23 +167,29 @@ const Game : React.FC = () => {
         },
     }
 
+    const copyablePieces = (showAtTop: boolean) => {
+        const top = reverseRowOrder ? !showAtTop : showAtTop;
+
+        return top ? gameState.copyablePiecesTop : gameState.copyablePiecesBottom;
+    }
+
     return (
         <>
             <DndProvider backend={HTML5Backend}>
                 <div className="game">
 
                     <RowOfPieces
-                        corePieces={state.copyablePiecesTop}
+                        corePieces={copyablePieces(true)}
                         gameOptions={gameControl}
                     />
 
                     <Board
-                        layout={state.boardLayout}
+                        layout={gameState.boardLayout}
                         gameOptions={gameControl}
                     />
 
                     <RowOfPieces
-                        corePieces={state.copyablePiecesBottom}
+                        corePieces={copyablePieces(false)}
                         gameOptions={gameControl}
                     />
                 </div>

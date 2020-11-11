@@ -30,7 +30,7 @@ function addRow(layout: BoardLayout, row: number, gameOptions: GameOptions, elem
             key={key(name)}
             className='board-boarder board-boarder-number'
         >
-            {gameOptions.numberRowsFromTop ? row + 1 : layout.nRows - row}
+            {layout.nRows - row}
         </div>
     );
 
@@ -71,7 +71,8 @@ function Board({ layout, gameOptions }: {
 
     addHeader(nCols, elems, 'top');
     for (let row = 0; row < nRows; ++row) {
-        addRow(layout, row, gameOptions, elems);
+        const rowToAdd = gameOptions.reverseRowOrder ? nRows - 1 - row : row;
+        addRow(layout, rowToAdd, gameOptions, elems);
     }
     addHeader(nCols, elems, 'bottom');
 
